@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { CLIENT_URL } = process.env;
 const sendMail = require("./sendMail");
+const sendEmail = require("./sendMail");
 
 const userCtrl = {
   register: async (req, res) => {
@@ -14,7 +15,7 @@ const userCtrl = {
       const user = await Users.findOne({ email });
 
       if (user)
-        return res.status.send(400).json({ msg: "This email already exists." });
+        return res.status(400).json({ msg: "This email already exists." });
       if (password.length < 6)
         return res
           .status(400)
@@ -31,11 +32,8 @@ const userCtrl = {
       const activation_token = createActivationToken(newUser);
 
       const url = `${CLIENT_URL}/user/activate/${activation_token}`;
-      sendMail(email, url);
+      sendMail(email, url, "Verify your email address");
 
-      res.json({
-        msg: "Register Success! Please activate your email to start.",
-      });
       res.json({
         msg: "Register Success! Please activate your email to start.",
       });
@@ -51,7 +49,6 @@ const userCtrl = {
         process.env.ACTIVATION_TOKEN_SECRET
       );
 
-      console.log(user);
       const { shopname, shopaddress, phonenumber, email, password } = user;
       const check = await Users.findOne({ email });
       if (check)
@@ -66,7 +63,9 @@ const userCtrl = {
       await newUser.save();
       res.json({ msg: "Account has been activated!" });
     } catch (err) {
-      return res.status(500).json({ msg: err.message });
+      return res
+        .status(500)
+        .json({ msg: err.message + " Please signup again" });
     }
   },
   login: async (req, res) => {
@@ -82,7 +81,6 @@ const userCtrl = {
 
       const refresh_token = createRefreshToken({ id: user._id });
 
-      console.log(user);
       res.cookie("refreshtoken", refresh_token, {
         httpOnly: true,
         path: "/user/refresh_token",
@@ -100,11 +98,46 @@ const userCtrl = {
       console.log(rf_token);
       if (!rf_token) return res.status(400).json({ msg: "Please login now!" });
 
-      jwt.verify(rf_token);
+      jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+        if (err) return res.status(400).json({ msg: "Please login now!" });
+
+        const access_token = createAccessToken({ id: user.id });
+        res.json({ access_token });
+      });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
   },
+  forgotPassword: async (req, res) => {
+    try {
+      const { email } = req.body;
+      const user = await Users.findOne({ email });
+      if (!user)
+        return res.status(400).json({ msg: "This email does not exist." });
+
+      const access_token = createAccessToken({ id: user._id });
+      const url = `${CLIENT_URL}/user/reset/${access_token}`;
+
+      sendEmail(email, url, "Reset your password");
+      res.json({ msg: "Re-sent the password, please check your email." });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+  resetPassword: async (req, res) => {
+    try {
+      const {password} = req.body;
+      const passwordhash = await bcrypt.hash(password,12);
+      console.log(req.user);
+      await Users.findOneAndUpdate({_id: req.user.id}, {
+        password: passwordhash
+      });
+
+      res.json({msg: "Password successfully changed!"})
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  }
 };
 
 function validateEmail(email) {
