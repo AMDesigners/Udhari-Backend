@@ -74,32 +74,6 @@ const userCtrl = {
       return res.status(500).json({ msg: err.message });
     }
   },
-  activateEmail: async (req, res) => {
-    try {
-      const { activation_token } = req.body;
-      const user = jwt.verify(
-        activation_token,
-        process.env.ACTIVATION_TOKEN_SECRET
-      );
-
-      console.log(user);
-      const { shopname, shopaddress, phonenumber, email, password } = user;
-      const check = await Registration.findOne({ email });
-      if (check)
-        return res.status(400).json({ msg: "This email already exists" });
-      const newUser = new Registration({
-        shopname,
-        shopaddress,
-        phonenumber,
-        email,
-        password,
-      });
-      await newUser.save();
-      res.json({ msg: "Account has been activated!" });
-    } catch (err) {
-      return res.status(500).json({ msg: err.message });
-    }
-  },
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
