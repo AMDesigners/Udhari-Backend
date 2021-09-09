@@ -1,9 +1,4 @@
-const { Registration } = require("../models/userModel");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const { CLIENT_URL } = process.env;
-const sendMail = require("./sendMail");
-const { Registration } = require("../models/userModel");
+const { Users } = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { CLIENT_URL } = process.env;
@@ -16,7 +11,7 @@ const userCtrl = {
 
       if (!validateEmail(email))
         return res.status(400).json({ msg: "Invalid emails." });
-      const user = await Registration.findOne({ email });
+      const user = await Users.findOne({ email });
 
       if (user)
         return res.status.send(400).json({ msg: "This email already exists." });
@@ -58,10 +53,10 @@ const userCtrl = {
 
       console.log(user);
       const { shopname, shopaddress, phonenumber, email, password } = user;
-      const check = await Registration.findOne({ email });
+      const check = await Users.findOne({ email });
       if (check)
         return res.status(400).json({ msg: "This email already exists" });
-      const newUser = new Registration({
+      const newUser = new Users({
         shopname,
         shopaddress,
         phonenumber,
@@ -77,21 +72,21 @@ const userCtrl = {
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
-      const user = await Users.fndOne({ email });
+      const user = await Users.findOne({ email });
       if (!user)
         return res.status(400).json({ msg: "This email does not exist." });
 
-      const isMatch = await bcrypt.compare(password, userpassword);
+      const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch)
         return res.status(400).json({ msg: "Password is incorrect." });
 
-      const refresh_token = createRefreshToken({ id: user_id });
+      const refresh_token = createRefreshToken({ id: user._id });
 
       console.log(user);
       res.cookie("refreshtoken", refresh_token, {
         httpOnly: true,
         path: "/user/refresh_token",
-        maxAge: 7 * 24 * 60 * 60 * 100,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
       res.json({ msg: "Login success" });
