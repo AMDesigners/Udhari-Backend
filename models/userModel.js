@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 
 const registrationSchema = new mongoose.Schema(
   {
+    role: {
+      type: Number
+    },
     shopname: {
       type: String,
     },
