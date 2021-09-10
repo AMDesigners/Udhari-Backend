@@ -12,7 +12,12 @@ router.post("/logout", userCtrl.logout);
 router.post("/reset", auth, userCtrl.resetPassword);
 router.get("/infor", auth, userCtrl.getUserInfor);
 router.get("/all_infor", auth, authAdmin, userCtrl.getUsersAllInfor);
+<<<<<<< HEAD
 router.patch("/update", auth, userCtrl.updateUser);
 router.patch("/update_role/:id", auth, authAdmin, userCtrl.updateUsersRole);
+=======
+router.delete("/delete/:id", userCtrl.deleteUser);
+
+>>>>>>> 13d32053143e9e4098cefb74d5f45ba4fe72bd73
 
 module.exports = router;
