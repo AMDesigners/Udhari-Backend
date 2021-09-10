@@ -164,7 +164,6 @@ const userCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   },
-<<<<<<< HEAD
   updateUser: async (req, res) => {
     try {
       const { email, phonenumber } = req.body;
@@ -186,7 +185,6 @@ const userCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   },
-=======
   deleteUser: async (req,res) => {
     try {
       await Users.findByIdAndDelete(req.params.id);
@@ -195,7 +193,6 @@ const userCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   }
->>>>>>> 13d32053143e9e4098cefb74d5f45ba4fe72bd73
 };
 
 function validateEmail(email) {
