@@ -9,9 +9,10 @@ router.post("/login", userCtrl.login);
 router.post("/refresh_token", userCtrl.getAccessToken);
 router.post("/forgot", userCtrl.forgotPassword);
 router.post("/logout", userCtrl.logout);
-
 router.post("/reset", auth, userCtrl.resetPassword);
 router.get("/infor", auth, userCtrl.getUserInfor);
 router.get("/all_infor", auth, authAdmin, userCtrl.getUsersAllInfor);
+router.patch("/update", auth, userCtrl.updateUser);
+router.patch("/update_role/:id", auth, authAdmin, userCtrl.updateUsersRole);
 
 module.exports = router;

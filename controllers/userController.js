@@ -95,7 +95,6 @@ const userCtrl = {
   getAccessToken: (req, res) => {
     try {
       const rf_token = req.cookies.refreshtoken;
-      console.log(rf_token);
       if (!rf_token) return res.status(400).json({ msg: "Please login now!" });
 
       jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
@@ -149,7 +148,6 @@ const userCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   },
-
   getUsersAllInfor: async (req, res) => {
     try {
       const users = await Users.find().select("-password");
@@ -162,6 +160,27 @@ const userCtrl = {
     try {
       res.clearCookie("refreshtoken", { path: "/user/refresh_token" });
       return res.json({ msg: "Logged out" });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+  updateUser: async (req, res) => {
+    try {
+      const { email, phonenumber } = req.body;
+      await Users.findOneAndUpdate(
+        { _id: req.user.id },
+        { email, phonenumber }
+      );
+      res.json({ msg: "Update Success!" });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+  updateUsersRole: async (req, res) => {
+    try {
+      const { role } = req.body;
+      await Users.findOneAndUpdate({ _id: req.params.id }, { role });
+      res.json({ msg: "Update Success!" });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
