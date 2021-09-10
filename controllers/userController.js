@@ -126,18 +126,36 @@ const userCtrl = {
   },
   resetPassword: async (req, res) => {
     try {
-      const {password} = req.body;
-      const passwordhash = await bcrypt.hash(password,12);
+      const { password } = req.body;
+      const passwordhash = await bcrypt.hash(password, 12);
       console.log(req.user);
-      await Users.findOneAndUpdate({_id: req.user.id}, {
-        password: passwordhash
-      });
+      await Users.findOneAndUpdate(
+        { _id: req.user.id },
+        {
+          password: passwordhash,
+        }
+      );
 
-      res.json({msg: "Password successfully changed!"})
+      res.json({ msg: "Password successfully changed!" });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
-  }
+  },
+  getUserInfor: async (req, res) => {
+    try {
+      const user = await Users.findById(req.user.id).select("-password");
+      res.json(user);
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+  getUsersAllInfor: async (req, res) => {
+    try {
+      console.log(req.user);
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
 };
 
 function validateEmail(email) {
