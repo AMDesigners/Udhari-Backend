@@ -8,8 +8,10 @@ router.post("/activation", userCtrl.activateEmail);
 router.post("/login", userCtrl.login);
 router.post("/refresh_token", userCtrl.getAccessToken);
 router.post("/forgot", userCtrl.forgotPassword);
-router.post("/reset",auth, userCtrl.resetPassword);
-router.get("/all_info",auth,authAdmin, userCtrl.getUsersAllInfo);
 router.post("/logout", userCtrl.logout);
+
+router.post("/reset", auth, userCtrl.resetPassword);
+router.get("/infor", auth, userCtrl.getUserInfor);
+router.get("/all_infor", auth, authAdmin, userCtrl.getUsersAllInfor);
 
 module.exports = router;

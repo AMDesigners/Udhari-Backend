@@ -126,35 +126,46 @@ const userCtrl = {
   },
   resetPassword: async (req, res) => {
     try {
-      const {password} = req.body;
-      const passwordhash = await bcrypt.hash(password,12);
+      const { password } = req.body;
+      const passwordhash = await bcrypt.hash(password, 12);
       console.log(req.user);
-      await Users.findOneAndUpdate({_id: req.user.id}, {
-        password: passwordhash
-      });
+      await Users.findOneAndUpdate(
+        { _id: req.user.id },
+        {
+          password: passwordhash,
+        }
+      );
 
-      res.json({msg: "Password successfully changed!"})
+      res.json({ msg: "Password successfully changed!" });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
   },
-  getUsersAllInfo: async (req,res) => {
+  getUserInfor: async (req, res) => {
     try {
-      console.log(req.user);
-      const users = await Users.find().select('-password');
+      const user = await Users.findById(req.user.id).select("-password");
+      res.json(user);
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+
+  getUsersAllInfor: async (req, res) => {
+    try {
+      const users = await Users.find().select("-password");
       res.json(users);
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
   },
-  logout: async (req,res) => {
+  logout: async (req, res) => {
     try {
-      res.clearCookie('refreshtoken', {path: "/user/refresh_token"});
-      return res.json({msg: "Logged out"});
+      res.clearCookie("refreshtoken", { path: "/user/refresh_token" });
+      return res.json({ msg: "Logged out" });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
-  }
+  },
 };
 
 function validateEmail(email) {
