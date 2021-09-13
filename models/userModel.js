@@ -8,9 +8,6 @@ const registrationSchema = new mongoose.Schema(
     shopname: {
       type: String,
     },
-    role: {
-      type: Number,
-    },
     shopaddress: {
       type: String,
       unique: true,

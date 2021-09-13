@@ -166,10 +166,10 @@ const userCtrl = {
   },
   updateUser: async (req, res) => {
     try {
-      const { email, phonenumber } = req.body;
+      const { phonenumber } = req.body;
       await Users.findOneAndUpdate(
         { _id: req.user.id },
-        { email, phonenumber }
+        { phonenumber },
       );
       res.json({ msg: "Update Success!" });
     } catch (error) {
