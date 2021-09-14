@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const registrationSchema = new mongoose.Schema(
   {
     role: {
-      type: Number
+      type: Number,
     },
     shopname: {
       type: String,
@@ -31,4 +31,30 @@ const registrationSchema = new mongoose.Schema(
 
 const Users = mongoose.model("user_details", registrationSchema);
 
-module.exports = { Users };
+const udhariSchema = new mongoose.Schema({
+  shopid: {
+    type: String,
+  },
+  customername: {
+    type: String,
+  },
+  customeremail: {
+    type: String,
+    unique: true,
+  },
+  status: {
+    type: String,
+    enum: ["pending", "paid"],
+    default: "pending",
+  },
+  udhari: {
+    type: String,
+  },
+  created_at: {
+    type: String,
+  },
+});
+
+const Udhari = mongoose.model("udhari_details", udhariSchema);
+
+module.exports = { Users, Udhari };

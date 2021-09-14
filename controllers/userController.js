@@ -1,4 +1,4 @@
-const { Users } = require("../models/userModel");
+const { Users, Udhari } = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { CLIENT_URL } = process.env;
@@ -32,7 +32,20 @@ const userCtrl = {
       const activation_token = createActivationToken(newUser);
 
       const url = `${CLIENT_URL}/user/activate/${activation_token}`;
-      sendMail(email, url, "Verify your email address");
+      sendMail(
+        email,
+        `
+      <div style="max-width: 700px; margin: auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 1rem;">
+      <h2 style="text-align: center; text-transform: uppercase; color: teal;">Welcome to the Udhaari Alert App</h2>
+      <p>Congratulations! You're almost set to start using our Udhaari alert app.
+          Just click the button below to validate your email address.
+      </p>
+      <a href=${url} style="background: crimson; text-decoration: none; color: white; padding: 10px 20px; margin: 10px 0; display:inline-block;">Verify your email address</a>
+      <p>If the button doesn't work for any reason, you can also click on the link below:</p>
+      <div>${url}</div>
+  </div>
+      `
+      );
 
       res.json({
         msg: "Register Success! Please activate your email to start.",
@@ -77,7 +90,7 @@ const userCtrl = {
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch)
-        return res.status(400).json({ msg: "Password is incorrect." });
+        return res.status(400).json({ msg: "Email or Password is incorrect." });
 
       const refresh_token = createRefreshToken({ id: user._id });
 
@@ -95,10 +108,14 @@ const userCtrl = {
   getAccessToken: (req, res) => {
     try {
       const rf_token = req.cookies.refreshtoken;
-      if (!rf_token) return res.status(400).json({ msg: "Please login now!" });
+      if (!rf_token)
+        return res.status(400).json({ msg: "Please login again!" });
 
       jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-        if (err) return res.status(400).json({ msg: "Please login now!" });
+        if (err)
+          return res
+            .status(400)
+            .json({ msg: "Somethign went wrong, Please login again!" });
 
         const access_token = createAccessToken({ id: user.id });
         res.json({ access_token });
@@ -117,7 +134,20 @@ const userCtrl = {
       const access_token = createAccessToken({ id: user._id });
       const url = `${CLIENT_URL}/user/reset/${access_token}`;
 
-      sendEmail(email, url, "Reset your password");
+      sendEmail(
+        email,
+        `
+      <div style="max-width: 700px; margin: auto; border: 10px solid #ddd; padding: 50px 20px; font-size: 1rem;">
+      <h2 style="text-align: center; text-transform: uppercase; color: teal;">Welcome to the Udhaari Alert App</h2>
+      <p>Congratulations! You're almost set to start using our Udhaari alert app.
+          Just click the button below to validate your email address.
+      </p>
+      <a href=${url} style="background: crimson; text-decoration: none; color: white; padding: 10px 20px; margin: 10px 0; display:inline-block;">Reset your password</a>
+      <p>If the button doesn't work for any reason, you can also click on the link below:</p>
+      <div>${url}</div>
+  </div>
+      `
+      );
       res.json({ msg: "Re-sent the password, please check your email." });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -135,7 +165,7 @@ const userCtrl = {
         }
       );
 
-      res.json({ msg: "Password successfully changed!" });
+      res.json({ msg: "Password changed successfully!" });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
@@ -159,7 +189,7 @@ const userCtrl = {
   logout: async (req, res) => {
     try {
       res.clearCookie("refreshtoken", { path: "/user/refresh_token" });
-      return res.json({ msg: "Logged out" });
+      return res.json({ msg: "Logged out Successfully!" });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
@@ -167,11 +197,8 @@ const userCtrl = {
   updateUser: async (req, res) => {
     try {
       const { phonenumber } = req.body;
-      await Users.findOneAndUpdate(
-        { _id: req.user.id },
-        { phonenumber },
-      );
-      res.json({ msg: "Update Success!" });
+      await Users.findOneAndUpdate({ _id: req.user.id }, { phonenumber });
+      res.json({ msg: "Updated Phone Number Successfully!" });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
@@ -185,14 +212,80 @@ const userCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   },
-  deleteUser: async (req,res) => {
+  deleteUser: async (req, res) => {
     try {
       await Users.findByIdAndDelete(req.params.id);
-      res.json({msg: "User deleted!"});
+      res.json({ msg: "User deleted!" });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
-  }
+  },
+  addUdhari: async (req, res) => {
+    try {
+      const {
+        shopid,
+        customername,
+        customeremail,
+        status,
+        udhari,
+        created_at,
+      } = req.body;
+      const user = await Udhari.findOne({ customeremail });
+      if (user)
+        return res.status(400).json({
+          msg: "This customer already exists. Please update the existing one.",
+        });
+      const newUdhari = new Udhari({
+        shopid,
+        customername,
+        customeremail,
+        status,
+        udhari,
+        created_at,
+      });
+      await newUdhari.save();
+      res.json({ msg: "Udhari saved successfully!" });
+    } catch (error) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  showUdhari: async (req, res) => {
+    try {
+      const shopid = req.body.shopid;
+      const user = await Udhari.find({ shopid: shopid });
+      res.json(user);
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+  updateUdhari: async (req, res) => {
+    try {
+      const { udhari, customeremail, shopid } = req.body;
+      await Udhari.findOneAndUpdate({ shopid, customeremail }, { udhari });
+      res.json({ msg: "Udhari updated successfully!" });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
+  sendUdhari: async (req, res) => {
+    try {
+      const { shopid, customeremail, udhari } = req.body;
+      const user = await Users.findOne({ _id: shopid });
+      sendMail(
+        customeremail,
+        `
+    <div style="max-width: 700px; margin: auto; border: 10px solid #ddd; padding: 30px 20px; font-size: 1rem;">
+    <h3 style="text-align: center; text-transform: uppercase; color: teal;">This is a remainder for your udhari from Shop: ${user.shopname}</h3>
+    <p>Below are the details of your udhari:</p>
+    <p>${udhari}</p>
+    </div>
+    `
+      );
+      res.json({ msg: "Alert sent successfully!" });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
 };
 
 function validateEmail(email) {
