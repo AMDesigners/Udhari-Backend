@@ -222,21 +222,15 @@ const userCtrl = {
   },
   addUdhari: async (req, res) => {
     try {
-      const {
-        shopid,
-        customername,
-        customeremail,
-        status,
-        udhari,
-        created_at,
-      } = req.body;
+      const { customername, customeremail, status, udhari, created_at } =
+        req.body;
       const user = await Udhari.findOne({ customeremail });
       if (user)
         return res.status(400).json({
           msg: "This customer already exists. Please update the existing one.",
         });
       const newUdhari = new Udhari({
-        shopid,
+        shopid: req.user.id,
         customername,
         customeremail,
         status,
@@ -246,13 +240,14 @@ const userCtrl = {
       await newUdhari.save();
       res.json({ msg: "Udhari saved successfully!" });
     } catch (error) {
-      return res.status(500).json({ msg: err.message });
+      return res.status(500).json({ msg: error.message });
     }
   },
   showUdhari: async (req, res) => {
     try {
-      const shopid = req.body.shopid;
-      const user = await Udhari.find({ shopid: shopid });
+      const user = await Udhari.find({ shopid: req.user.id }).sort({
+        created_at: -1,
+      });
       res.json(user);
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -260,8 +255,11 @@ const userCtrl = {
   },
   updateUdhari: async (req, res) => {
     try {
-      const { udhari, customeremail, shopid } = req.body;
-      await Udhari.findOneAndUpdate({ shopid, customeremail }, { udhari });
+      const { udhari, customeremail } = req.body;
+      await Udhari.findOneAndUpdate(
+        { shopid: req.user.id, customeremail },
+        { udhari }
+      );
       res.json({ msg: "Udhari updated successfully!" });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -269,8 +267,8 @@ const userCtrl = {
   },
   sendUdhari: async (req, res) => {
     try {
-      const { shopid, customeremail, udhari } = req.body;
-      const user = await Users.findOne({ _id: shopid });
+      const { customeremail, udhari } = req.body;
+      const user = await Users.findOne({ _id: req.user.id });
       sendMail(
         customeremail,
         `
