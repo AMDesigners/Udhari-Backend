@@ -97,7 +97,7 @@ const userCtrl = {
       res.cookie("refreshtoken", refresh_token, {
         httpOnly: true,
         path: "/user/refresh_token",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 1 * 60 * 60 * 1000,
       });
 
       res.json({ msg: "Login success" });
@@ -172,7 +172,7 @@ const userCtrl = {
   },
   getUserInfor: async (req, res) => {
     try {
-      const user = await Users.findById(req.user.id).select("-password");
+      const user = await Users.findById(req.user.id);
       res.json(user);
     } catch (error) {
       return res.status(500).json({ msg: error.message });
@@ -245,7 +245,8 @@ const userCtrl = {
   },
   showUdhari: async (req, res) => {
     try {
-      const user = await Udhari.find({ shopid: req.user.id }).sort({
+      const status = req.query.status;
+      const user = await Udhari.find({ shopid: req.user.id, status: status }).sort({
         created_at: -1,
       });
       res.json(user);
