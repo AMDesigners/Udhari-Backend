@@ -115,7 +115,7 @@ const userCtrl = {
         if (err)
           return res
             .status(400)
-            .json({ msg: "Somethign went wrong, Please login again!" });
+            .json({ msg: "Something went wrong, Please login again!" });
 
         const access_token = createAccessToken({ id: user.id });
         res.json({ access_token });
@@ -157,7 +157,6 @@ const userCtrl = {
     try {
       const { password } = req.body;
       const passwordhash = await bcrypt.hash(password, 12);
-      console.log(req.user);
       await Users.findOneAndUpdate(
         { _id: req.user.id },
         {
@@ -222,8 +221,7 @@ const userCtrl = {
   },
   addUdhari: async (req, res) => {
     try {
-      const { customername, customeremail, status, udhari, created_at } =
-        req.body;
+      const { customername, customeremail, udhari, created_at } = req.body;
       const user = await Udhari.findOne({ customeremail });
       if (user)
         return res.status(400).json({
@@ -233,7 +231,6 @@ const userCtrl = {
         shopid: req.user.id,
         customername,
         customeremail,
-        status,
         udhari,
         created_at,
       });
@@ -246,7 +243,10 @@ const userCtrl = {
   showUdhari: async (req, res) => {
     try {
       const status = req.query.status;
-      const user = await Udhari.find({ shopid: req.user.id, status: status }).sort({
+      const user = await Udhari.find({
+        shopid: req.user.id,
+        status: status,
+      }).sort({
         created_at: -1,
       });
       res.json(user);
@@ -256,10 +256,10 @@ const userCtrl = {
   },
   updateUdhari: async (req, res) => {
     try {
-      const { udhari, customeremail } = req.body;
+      const { udhari, customeremail, status } = req.body;
       await Udhari.findOneAndUpdate(
         { shopid: req.user.id, customeremail },
-        { udhari }
+        { udhari, status }
       );
       res.json({ msg: "Udhari updated successfully!" });
     } catch (error) {
