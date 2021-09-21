@@ -256,10 +256,10 @@ const userCtrl = {
   },
   updateUdhari: async (req, res) => {
     try {
-      const { udhari, customeremail, status } = req.body;
+      const { udhari, customeremail } = req.body;
       await Udhari.findOneAndUpdate(
         { shopid: req.user.id, customeremail },
-        { udhari, status }
+        { udhari }
       );
       res.json({ msg: "Udhari updated successfully!" });
     } catch (error) {
@@ -287,7 +287,11 @@ const userCtrl = {
   },
   paidUdhari: async (req, res) => {
     try {
-      const { customeremail, udhari } = req.body;
+      const { customeremail, udhari, status } = req.body;
+      await Udhari.findOneAndUpdate(
+        { shopid: req.user.id, customeremail },
+        { status }
+      );
       const user = await Users.findOne({ _id: req.user.id });
       sendMail(
         customeremail,
@@ -299,7 +303,7 @@ const userCtrl = {
     </div>
     `
       );
-      res.json({ msg: "Alert sent successfully!" });
+      res.json({ msg: "Udhari Marked as Paid!" });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
