@@ -13,7 +13,7 @@ router.get("/udhari", auth, userCtrl.showUdhari);
 router.get("/logout", userCtrl.logout);
 router.post("/reset", auth, userCtrl.resetPassword);
 router.post("/send_alert", auth, userCtrl.sendUdhari);
-router.post("/send_paid_alert", auth, userCtrl.paidUdhari);
+router.patch("/send_paid_alert", auth, userCtrl.paidUdhari);
 router.get("/infor", auth, userCtrl.getUserInfor);
 router.get("/all_infor", auth, authAdmin, userCtrl.getUsersAllInfor);
 router.patch("/update", auth, userCtrl.updateUser);

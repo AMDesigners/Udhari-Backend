@@ -222,7 +222,7 @@ const userCtrl = {
   addUdhari: async (req, res) => {
     try {
       const { customername, customeremail, udhari, created_at } = req.body;
-      const user = await Udhari.findOne({ customeremail });
+      const user = await Udhari.findOne({ customeremail, status: "pending" });
       if (user)
         return res.status(400).json({
           msg: "This customer already exists. Please update the existing one.",

@@ -40,7 +40,6 @@ const udhariSchema = new mongoose.Schema({
   },
   customeremail: {
     type: String,
-    unique: true,
   },
   status: {
     type: String,
