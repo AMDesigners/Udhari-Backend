@@ -219,6 +219,14 @@ const userCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   },
+  deleteUdhari: async (req,res) => {
+    try {
+      await Udhari.findByIdAndDelete(req.params.id);
+      res.json({ msg: "Udhari deleted!" });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
   addUdhari: async (req, res) => {
     try {
       const { customername, customeremail, udhari, created_at } = req.body;

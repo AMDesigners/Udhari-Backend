@@ -20,5 +20,6 @@ router.patch("/update", auth, userCtrl.updateUser);
 router.patch("/update_udhari", auth, userCtrl.updateUdhari);
 router.patch("/update_role/:id", auth, authAdmin, userCtrl.updateUsersRole);
 router.delete("/delete/:id", userCtrl.deleteUser);
+router.delete("/deleteudhari/:id", userCtrl.deleteUdhari);
 
 module.exports = router;
