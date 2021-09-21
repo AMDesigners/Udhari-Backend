@@ -296,11 +296,9 @@ const userCtrl = {
   paidUdhari: async (req, res) => {
     try {
       const { customeremail, udhari } = req.body;
-      console.log(
-        await Udhari.findOneAndUpdate(
-          { shopid: req.user.id, customeremail, status: "pending" },
-          { status: "paid" }
-        )
+      await Udhari.findOneAndUpdate(
+        { shopid: req.user.id, customeremail, status: "pending" },
+        { status: "paid" }
       );
       const user = await Users.findOne({ _id: req.user.id });
       sendMail(
