@@ -298,7 +298,7 @@ const userCtrl = {
       const { customeremail, udhari, status } = req.body;
       await Udhari.findOneAndUpdate(
         { shopid: req.user.id, customeremail },
-        { status }
+        { status: "paid" }
       );
       const user = await Users.findOne({ _id: req.user.id });
       sendMail(
