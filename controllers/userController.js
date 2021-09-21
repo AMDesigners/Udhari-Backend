@@ -264,10 +264,10 @@ const userCtrl = {
   },
   updateUdhari: async (req, res) => {
     try {
-      const { udhari, customeremail, status } = req.body;
+      const { udhari, customeremail } = req.body;
       await Udhari.findOneAndUpdate(
         { shopid: req.user.id, customeremail },
-        { udhari, status }
+        { udhari }
       );
       res.json({ msg: "Udhari updated successfully!" });
     } catch (error) {
@@ -296,9 +296,11 @@ const userCtrl = {
   paidUdhari: async (req, res) => {
     try {
       const { customeremail, udhari } = req.body;
-      await Udhari.findOneAndUpdate(
-        { shopid: req.user.id, customeremail },
-        { status: "paid" }
+      console.log(
+        await Udhari.findOneAndUpdate(
+          { shopid: req.user.id, customeremail, status: "pending" },
+          { status: "paid" }
+        )
       );
       const user = await Users.findOne({ _id: req.user.id });
       sendMail(
