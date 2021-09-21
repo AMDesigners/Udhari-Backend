@@ -295,7 +295,7 @@ const userCtrl = {
   },
   paidUdhari: async (req, res) => {
     try {
-      const { customeremail, udhari, status } = req.body;
+      const { customeremail, udhari } = req.body;
       await Udhari.findOneAndUpdate(
         { shopid: req.user.id, customeremail },
         { status: "paid" }
