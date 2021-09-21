@@ -285,6 +285,25 @@ const userCtrl = {
       return res.status(500).json({ msg: error.message });
     }
   },
+  paidUdhari: async (req, res) => {
+    try {
+      const { customeremail, udhari } = req.body;
+      const user = await Users.findOne({ _id: req.user.id });
+      sendMail(
+        customeremail,
+        `
+    <div style="max-width: 700px; margin: auto; border: 10px solid #ddd; padding: 30px 20px; font-size: 1rem;">
+    <h3 style="text-align: center; text-transform: uppercase; color: teal;">The shopkeeper of ${user.shopname} has marked your udhari as Paid</h3>
+    <p>Below are the details of your udhari:</p>
+    <p>${udhari}</p>
+    </div>
+    `
+      );
+      res.json({ msg: "Alert sent successfully!" });
+    } catch (error) {
+      return res.status(500).json({ msg: error.message });
+    }
+  },
 };
 
 function validateEmail(email) {
